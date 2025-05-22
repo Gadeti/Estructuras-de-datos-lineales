@@ -1,1 +1,87 @@
+import random
 
+# Estructura para lista de ventas (usando listas simples)
+class ListaVentas:
+    def __init__(self):
+        self.ventas = []
+
+    def agregar_venta(self, codigo_producto, cantidad_vendida, precio_venta):
+        self.ventas.append([codigo_producto, cantidad_vendida, precio_venta])
+
+    def esta_vacia(self):
+        return len(self.ventas) == 0
+
+# POBLAR DATOS
+def poblar_datos(lista):
+    codigos_productos = [random.randint(1000, 9999) for _ in range(20)]
+
+    for _ in range(50):
+        codigo = random.choice(codigos_productos)
+        cantidad = random.randint(1, 20)
+        precio = round(random.uniform(10000, 100000), 2)
+        lista.agregar_venta(codigo, cantidad, precio)
+
+# MOSTRAR DATOS
+def mostrar_datos(lista):
+    if lista.esta_vacia():
+        print("La lista está vacía.")
+        return
+
+    print("===================================================")
+    print("CÓDIGO\tCANTIDAD\tPRECIO")
+    print("===================================================")
+
+    for venta in lista.ventas:
+        print(f"{venta[0]}\t{venta[1]}\t\t{venta[2]:.2f}")
+
+    print("===================================================")
+
+# SUMAR VENTAS TOTALIZADAS
+def suma_ventas(lista_entrada, lista_salida):
+    if lista_entrada.esta_vacia():
+        return
+
+    productos_totalizados = []  # cada item: [codigo, total_cant, suma_precios, num_ventas]
+
+    for venta in lista_entrada.ventas:
+        codigo = venta[0]
+        cantidad = venta[1]
+        precio = venta[2]
+
+        # Buscar si ya se totalizó este código
+        encontrado = False
+        for p in productos_totalizados:
+            if p[0] == codigo:
+                p[1] += cantidad
+                p[2] += precio
+                p[3] += 1
+                encontrado = True
+                break
+
+        # Si no, agregar uno nuevo
+        if not encontrado:
+            productos_totalizados.append([codigo, cantidad, precio, 1])
+
+    # Agregar a la lista de salida
+    for codigo, total_cant, suma_precios, num_ventas in productos_totalizados:
+        precio_promedio = round(suma_precios / num_ventas, 2)
+        lista_salida.agregar_venta(codigo, total_cant, precio_promedio)
+
+# MAIN
+def main():
+    lista_entrada = ListaVentas()
+    lista_salida = ListaVentas()
+
+    poblar_datos(lista_entrada)
+
+    print("\nLISTA DE VENTAS ORIGINALES:")
+    mostrar_datos(lista_entrada)
+
+    suma_ventas(lista_entrada, lista_salida)
+
+    print("\nLISTA DE VENTAS TOTALIZADAS:")
+    mostrar_datos(lista_salida)
+
+# Ejecutar
+if __name__ == "__main__":
+    main()
