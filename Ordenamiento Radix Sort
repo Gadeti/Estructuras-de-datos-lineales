@@ -1,0 +1,42 @@
+def radix_sort_binario(lista):
+    if not lista:
+        return lista
+
+    # Paso 1: Igualar longitudes solo para ordenar, pero conservar el original
+    max_len = max(len(b) for b in lista)
+    lista_con_pads = [(b.zfill(max_len), b) for b in lista]
+
+    # Paso 2: Recorrer desde el bit menos significativo al más significativo
+    for i in range(max_len - 1, -1, -1):  # derecha a izquierda
+        cubeta_0 = []
+        cubeta_1 = []
+
+        for pad, original in lista_con_pads:
+            if pad[i] == '0':
+                cubeta_0.append((pad, original))
+            else:
+                cubeta_1.append((pad, original))
+
+        # Reunir en orden
+        lista_con_pads = cubeta_0 + cubeta_1
+
+    # Paso 3: Retornar solo los valores originales, ordenados correctamente
+    return [original for _, original in lista_con_pads]
+
+
+# ===========================
+# Ejemplo de uso
+# ===========================
+def main():
+    datos_binarios = ['101', '011', '1001', '000', '1110', '01', '1', '111']
+
+    print("Datos binarios originales:")
+    print(datos_binarios)
+
+    ordenados = radix_sort_binario(datos_binarios)
+
+    print("\nDatos ordenados (Radix Sort Binario - LSD):")
+    print(ordenados)
+
+if __name__ == "__main__":
+    main()
