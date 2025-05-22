@@ -1,1 +1,1 @@
-# Estructuras-de-datos-lineales
+# Estructuras de datos lineales
