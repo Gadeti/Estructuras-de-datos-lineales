@@ -1,0 +1,111 @@
+class TablaHash:
+    def __init__(self):
+        self.N = 10  # Tamaño fijo del arreglo
+        self.tabla_enteros = [[] for _ in range(self.N)]
+        self.tabla_strings = [[] for _ in range(self.N)]
+
+    # 1. Hash para enteros
+    def calcular_hash_entero(self, clave):
+        return clave % self.N
+
+    # 2. Hash para strings (suma de ASCII)
+    def calcular_hash_string(self, clave):
+        return sum(ord(c) for c in clave) % self.N
+
+    # 3. Insertar clave entera
+    def insertar_entero(self, clave, valor):
+        indice = self.calcular_hash_entero(clave)
+        cubeta = self.tabla_enteros[indice]
+        for i, (k, v) in enumerate(cubeta):
+            if k == clave:
+                cubeta[i] = (clave, valor)
+                return
+        cubeta.append((clave, valor))
+
+    # 4. Insertar clave string
+    def insertar_string(self, clave, valor):
+        indice = self.calcular_hash_string(clave)
+        cubeta = self.tabla_strings[indice]
+        for i, (k, v) in enumerate(cubeta):
+            if k == clave:
+                cubeta[i] = (clave, valor)
+                return
+        cubeta.append((clave, valor))
+
+    # 5. Buscar clave entera
+    def buscar_entero(self, clave):
+        indice = self.calcular_hash_entero(clave)
+        for k, v in self.tabla_enteros[indice]:
+            if k == clave:
+                return v
+        return None
+
+    # 5. Buscar clave string
+    def buscar_string(self, clave):
+        indice = self.calcular_hash_string(clave)
+        for k, v in self.tabla_strings[indice]:
+            if k == clave:
+                return v
+        return None
+
+    # 6. Eliminar clave entera
+    def eliminar_entero(self, clave):
+        indice = self.calcular_hash_entero(clave)
+        cubeta = self.tabla_enteros[indice]
+        for i, (k, v) in enumerate(cubeta):
+            if k == clave:
+                return cubeta.pop(i)
+        return None
+
+    # 6. Eliminar clave string
+    def eliminar_string(self, clave):
+        indice = self.calcular_hash_string(clave)
+        cubeta = self.tabla_strings[indice]
+        for i, (k, v) in enumerate(cubeta):
+            if k == clave:
+                return cubeta.pop(i)
+        return None
+
+    # 7. Mostrar tabla hash
+    def mostrar_tabla(self):
+        print("=== TABLA HASH: CLAVES ENTERAS ===")
+        for i, cubeta in enumerate(self.tabla_enteros):
+            print(f"Índice {i}:", end=" ")
+            for clave, valor in cubeta:
+                print(f"({clave}, {valor}) →", end=" ")
+            print("∅")
+
+        print("\n=== TABLA HASH: CLAVES STRING ===")
+        for i, cubeta in enumerate(self.tabla_strings):
+            print(f"Índice {i}:", end=" ")
+            for clave, valor in cubeta:
+                print(f"(\"{clave}\", {valor}) →", end=" ")
+            print("∅")
+
+
+# === EJEMPLO DE USO ===
+
+tabla = TablaHash()
+
+# Insertar 3 claves enteras
+tabla.insertar_entero(5, "A")
+tabla.insertar_entero(15, "B")
+tabla.insertar_entero(3, "C")
+
+# Insertar 3 claves string
+tabla.insertar_string("Ana", 1111)
+tabla.insertar_string("Luis", 2222)
+tabla.insertar_string("Mia", 3333)
+
+# Búsquedas
+print("Buscar 5:", tabla.buscar_entero(5))             # A
+print("Buscar 'Ana':", tabla.buscar_string("Ana"))     # 1111
+print("Buscar 'Pedro':", tabla.buscar_string("Pedro")) # None
+
+# Eliminaciones
+print("\nEliminar 15:", tabla.eliminar_entero(15))     # (15, 'B')
+print("Eliminar 'Mia':", tabla.eliminar_string("Mia")) # ('Mia', 3333)
+
+# Mostrar tabla final
+print("\n--- ESTADO FINAL DE LA TABLA ---")
+tabla.mostrar_tabla()
