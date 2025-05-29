@@ -1,86 +1,84 @@
 import random
 
-# Estructura para lista de ventas (usando listas simples)
+# Lista de ventas
 class ListaVentas:
     def __init__(self):
         self.ventas = []
 
-    def agregar_venta(self, codigo_producto, cantidad_vendida, precio_venta):
-        self.ventas.append([codigo_producto, cantidad_vendida, precio_venta])
+    def agregar(self, codigo, cantidad, precio):
+        self.ventas.append([codigo, cantidad, precio])
 
-    def esta_vacia(self):
+    def vacia(self):
         return len(self.ventas) == 0
 
-# POBLAR DATOS
-def poblar_datos(lista):
-    codigos_productos = [random.randint(1000, 9999) for _ in range(20)]
+    def limpiar(self):
+        self.ventas = []
 
+# Poblar datos aleatorios
+def poblar(lista):
+    codigos = [random.randint(1000, 9999) for _ in range(20)]
     for _ in range(50):
-        codigo = random.choice(codigos_productos)
-        cantidad = random.randint(1, 20)
+        c = random.choice(codigos)
+        cant = random.randint(1, 20)
         precio = round(random.uniform(10000, 100000), 2)
-        lista.agregar_venta(codigo, cantidad, precio)
+        lista.agregar(c, cant, precio)
 
-# MOSTRAR DATOS
-def mostrar_datos(lista):
-    if lista.esta_vacia():
-        print("La lista está vacía.")
+# Mostrar datos
+def mostrar(lista):
+    if lista.vacia():
+        print("Lista vacía.")
         return
-
-    print("===================================================")
     print("CÓDIGO\tCANTIDAD\tPRECIO")
-    print("===================================================")
+    for v in lista.ventas:
+        print(f"{v[0]}\t{v[1]}\t\t{v[2]:,.2f}")
+    print()
 
-    for venta in lista.ventas:
-        print(f"{venta[0]}\t{venta[1]}\t\t{venta[2]:.2f}")
-
-    print("===================================================")
-
-# SUMAR VENTAS TOTALIZADAS
-def suma_ventas(lista_entrada, lista_salida):
-    if lista_entrada.esta_vacia():
-        return
-
-    productos_totalizados = []  # cada item: [codigo, total_cant, suma_precios, num_ventas]
-
-    for venta in lista_entrada.ventas:
-        codigo = venta[0]
-        cantidad = venta[1]
-        precio = venta[2]
-
-        # Buscar si ya se totalizó este código
-        encontrado = False
-        for p in productos_totalizados:
-            if p[0] == codigo:
-                p[1] += cantidad
-                p[2] += precio
-                p[3] += 1
-                encontrado = True
+# Totalizar ventas por código
+def totalizar(entrada, salida):
+    resumen = []  # [codigo, suma_cant, suma_precios, veces]
+    for v in entrada.ventas:
+        codigo, cant, precio = v
+        enc = False
+        for r in resumen:
+            if r[0] == codigo:
+                r[1] += cant
+                r[2] += precio
+                r[3] += 1
+                enc = True
                 break
+        if not enc:
+            resumen.append([codigo, cant, precio, 1])
+    for r in resumen:
+        cod, cant, suma, n = r
+        prom = round(suma / n, 2)
+        salida.agregar(cod, cant, prom)
 
-        # Si no, agregar uno nuevo
-        if not encontrado:
-            productos_totalizados.append([codigo, cantidad, precio, 1])
+# Ordenar por código (selección)
+def ordenar(lista):
+    n = len(lista.ventas)
+    for i in range(n - 1):
+        min_idx = i
+        for j in range(i + 1, n):
+            if lista.ventas[j][0] < lista.ventas[min_idx][0]:
+                min_idx = j
+        lista.ventas[i], lista.ventas[min_idx] = lista.ventas[min_idx], lista.ventas[i]
 
-    # Agregar a la lista de salida
-    for codigo, total_cant, suma_precios, num_ventas in productos_totalizados:
-        precio_promedio = round(suma_precios / num_ventas, 2)
-        lista_salida.agregar_venta(codigo, total_cant, precio_promedio)
-
-# MAIN
+# Programa principal
 def main():
-    lista_entrada = ListaVentas()
-    lista_salida = ListaVentas()
+    entrada = ListaVentas()
+    salida = ListaVentas()
 
-    poblar_datos(lista_entrada)
+    poblar(entrada)
+    print("VENTAS ORIGINALES:")
+    mostrar(entrada)
 
-    print("\nLISTA DE VENTAS ORIGINALES:")
-    mostrar_datos(lista_entrada)
+    totalizar(entrada, salida)
+    ordenar(salida)
 
-    suma_ventas(lista_entrada, lista_salida)
+    print("VENTAS TOTALIZADAS Y ORDENADAS:")
+    mostrar(salida)
 
-    print("\nLISTA DE VENTAS TOTALIZADAS:")
-    mostrar_datos(lista_salida)
+    entrada.limpiar()
 
 # Ejecutar
 if __name__ == "__main__":
