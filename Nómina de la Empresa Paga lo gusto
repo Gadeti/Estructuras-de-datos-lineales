@@ -1,119 +1,59 @@
 import random
 
-# Poblar datos aleatorios
-def poblar_datos(n):
-    ids = [0] * n
-    nombres = [""] * n
-    nomina = [[0.0, 0.0, 0.0] for _ in range(n)]
+# Lista de empleados
+class Nomina:
+    def __init__(self):
+        self.datos = []
 
-    nombres_disponibles = ["Juan", "Ana", "Carlos", "María", "Pedro", "Laura", "Damaris",
-                           "Albita", "Pedrito", "Juanita", "Pachita", "Ricardo"]
+    def agregar(self, id_empleado, nombre, sueldo, deduccion, neto):
+        self.datos.append([id_empleado, nombre, sueldo, deduccion, neto])
 
-    for i in range(n):
-        ids[i] = random.randint(1000, 9999)
-        nombres[i] = random.choice(nombres_disponibles)
+    def vacia(self):
+        return len(self.datos) == 0
+
+# Generar empleados aleatorios
+def poblar(nomina, n):
+    nombres = ["Ana", "Luis", "Carlos", "Sofía", "Pedro", "Lucía", "Marta", "Juan", "Rosa", "Diego"]
+    for _ in range(n):
+        id_emp = random.randint(1000, 9999)
+        nom = random.choice(nombres)
         sueldo = random.randint(1000000, 4000000)
         deduccion = round(sueldo * random.uniform(0.1, 0.2))
         neto = sueldo - deduccion
-        nomina[i] = [sueldo, deduccion, neto]
+        nomina.agregar(id_emp, nom, sueldo, deduccion, neto)
 
-    return ids, nombres, nomina
+# Mostrar nómina
+def mostrar(nomina):
+    if nomina.vacia():
+        print("Nómina vacía.")
+        return
+    print("ID\tNOMBRE\t\tSUELDO\t\tDEDUCCIÓN\tNETO")
+    for d in nomina.datos:
+        print(f"{d[0]}\t{d[1]:<10}\t${d[2]:,}\t${d[3]:,}\t${d[4]:,}")
+    print()
 
-# Mostrar todos los datos
-def mostrar_datos(ids, nombres, nomina):
-    print("\n=== NÓMINA DE EMPLEADOS ===")
-    print("{:<12} {:<15} {:<15} {:<15} {:<15}".format(
-        "ID", "NOMBRE", "SUELDO BÁSICO", "DEDUCCIONES", "NETO A PAGAR"))
-    print("-" * 72)
-    for i in range(len(ids)):
-        print("{:<12} {:<15} ${:<14,.2f} ${:<14,.2f} ${:<14,.2f}".format(
-            ids[i], nombres[i], nomina[i][0], nomina[i][1], nomina[i][2]))
-
-# Mostrar un solo empleado
-def mostrar_empleado(ids, nombres, nomina, pos):
-    if 0 <= pos < len(ids):
-        print("\n=== DATOS DEL EMPLEADO ===")
-        print("ID:", ids[pos])
-        print("Nombre:", nombres[pos])
-        print("Sueldo Básico: ${:,.2f}".format(nomina[pos][0]))
-        print("Deducciones:  ${:,.2f}".format(nomina[pos][1]))
-        print("Neto a Pagar: ${:,.2f}".format(nomina[pos][2]))
-    else:
-        print("Empleado no encontrado.")
-
-# Ordenar por ID (Selection Sort)
-def ordenar_por_identificacion(ids, nombres, nomina):
-    n = len(ids)
+# Ordenar por ID (selección)
+def ordenar(nomina):
+    n = len(nomina.datos)
     for i in range(n - 1):
-        min_index = i
+        min_pos = i
         for j in range(i + 1, n):
-            if ids[j] < ids[min_index]:
-                min_index = j
-        if min_index != i:
-            ids[i], ids[min_index] = ids[min_index], ids[i]
-            nombres[i], nombres[min_index] = nombres[min_index], nombres[i]
-            nomina[i], nomina[min_index] = nomina[min_index], nomina[i]
+            if nomina.datos[j][0] < nomina.datos[min_pos][0]:
+                min_pos = j
+        nomina.datos[i], nomina.datos[min_pos] = nomina.datos[min_pos], nomina.datos[i]
 
-# Búsqueda binaria por ID
-def buscar_empleado(ids, valor):
-    inicio = 0
-    fin = len(ids) - 1
-    while inicio <= fin:
-        medio = (inicio + fin) // 2
-        if ids[medio] == valor:
-            return medio
-        elif ids[medio] < valor:
-            inicio = medio + 1
-        else:
-            fin = medio - 1
-    return -1
-
-# QuickSort por nombre
-def quicksort_por_nombre(ids, nombres, nomina, inicio, fin):
-    if inicio < fin:
-        pivote_index = particion(ids, nombres, nomina, inicio, fin)
-        quicksort_por_nombre(ids, nombres, nomina, inicio, pivote_index - 1)
-        quicksort_por_nombre(ids, nombres, nomina, pivote_index + 1, fin)
-
-def particion(ids, nombres, nomina, inicio, fin):
-    pivote = nombres[fin].lower()
-    i = inicio - 1
-    for j in range(inicio, fin):
-        if nombres[j].lower() <= pivote:
-            i += 1
-            intercambiar(ids, nombres, nomina, i, j)
-    intercambiar(ids, nombres, nomina, i + 1, fin)
-    return i + 1
-
-def intercambiar(ids, nombres, nomina, i, j):
-    ids[i], ids[j] = ids[j], ids[i]
-    nombres[i], nombres[j] = nombres[j], nombres[i]
-    nomina[i], nomina[j] = nomina[j], nomina[i]
-
-# Main principal
+# Programa principal
 def main():
-    cantidad_empleados = 10
-    ids, nombres, nomina = poblar_datos(cantidad_empleados)
+    empleados = Nomina()
+    poblar(empleados, 10)
 
-    print("\nDATOS INICIALES:")
-    mostrar_datos(ids, nombres, nomina)
+    print("NÓMINA ORIGINAL:")
+    mostrar(empleados)
 
-    ordenar_por_identificacion(ids, nombres, nomina)
-    print("\nDATOS ORDENADOS POR IDENTIFICACIÓN:")
-    mostrar_datos(ids, nombres, nomina)
+    ordenar(empleados)
 
-    buscar_id = ids[3]  # Buscar un ID que sí existe
-    print(f"\nBuscando empleado con ID: {buscar_id}")
-    pos = buscar_empleado(ids, buscar_id)
-    mostrar_empleado(ids, nombres, nomina, pos)
-
-    print("\nBuscando empleado con ID: 9999 (no existe)")
-    pos = buscar_empleado(ids, 9999)
-    mostrar_empleado(ids, nombres, nomina, pos)
-
-    quicksort_por_nombre(ids, nombres, nomina, 0, len(ids) - 1)
-    print("\nDATOS ORDENADOS POR NOMBRE:")
-    mostrar_datos(ids, nombres, nomina)
+    print("NÓMINA ORDENADA POR ID:")
+    mostrar(empleados)
 
 # Ejecutar
 if __name__ == "__main__":
